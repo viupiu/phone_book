@@ -68,7 +68,6 @@ def delete_data():
         if user_confirm == 'д':
             delete_all_contacts()
             print("Все контакты успешно удалены.\n")
-            print_data()
         elif user_confirm == 'н':
             print("Удаление отменено.\n")
         else:
@@ -81,7 +80,6 @@ def delete_data():
             user_input = input("У - удалить контакт\nВ - выход из меню\n").lower()
             if user_input == 'у':
                 delete_single_contact(found_contacts[0], lines)
-                print_data()
             elif user_input == 'в':
                 print("Выход из меню.\n")
             else:
@@ -96,7 +94,10 @@ def delete_data():
             if user_input.isdigit() and 1 <= int(user_input) <= len(found_contacts):
                 selected_contact = found_contacts[int(user_input) - 1]
                 delete_single_contact(selected_contact, lines)
-                print(f"Успешно удален контакт: {selected_contact}")
+            elif user_input == 'все':
+                for contact in found_contacts:
+                    delete_single_contact(contact, lines)
+                print("Все найденные контакты успешно удалены.\n")
             elif user_input == 'в':
                 print("Выход из меню.\n")
             else:
@@ -128,7 +129,6 @@ def edit_data(found_contacts):
             user_input = '1'
         elif user_input == 'у':
             delete_single_contact(found_contacts[0], lines)
-            print_data()
             return
     else:
         user_input = input("\nВыберите номер контакта для изменения\nВ - выход из меню\n").lower()
@@ -154,7 +154,6 @@ def edit_or_delete(selected_contact):
             edit_single_contact(selected_contact, lines)
         elif user_choice == 'у':
             delete_single_contact(selected_contact, lines)
-            print_data()
         elif user_choice == 'в':
             print("Выход из меню.\n")
         else:
