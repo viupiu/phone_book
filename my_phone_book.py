@@ -1,15 +1,14 @@
 import os
 
-
 # функция для ввода данных
 def input_data():
-    input_phone = input('Введите телефон: ')
-    input_last_name = input('Введите фамилию: ')
-    input_first_name = input('Введите имя: ')
-    input_middle_name = input('Введите отчество: ')
+    input_phone = input('Введите телефон: ') or "--"
+    input_last_name = input('Введите фамилию: ') or "--"
+    input_first_name = input('Введите имя: ') or "--"
+    input_middle_name = input('Введите отчество: ') or "--"
 
     with open('phone.txt', 'a') as file:
-        file.write(f"{input_phone} {input_last_name} {input_first_name} {input_middle_name}\n")
+        file.write(f"{input_phone}\t{input_last_name}\t{input_first_name}\t{input_middle_name}\n")
 
     print(f'\nСохранен контакт: {input_last_name} {input_first_name} {input_middle_name}\n')
 
@@ -64,7 +63,18 @@ def delete_data():
             if input_data in line.lower():
                 found_contacts.append(line.strip())
 
-    if found_contacts:
+    if input_data == 'все':
+        user_confirm = input("Вы уверены, что хотите удалить все контакты? (Д/Н) \n").lower()
+        if user_confirm == 'д':
+            delete_all_contacts()
+            print("Все контакты успешно удалены.\n")
+            print_data()
+        elif user_confirm == 'н':
+            print("Удаление отменено.\n")
+        else:
+            print("Неверный ввод. Действие отменено.\n")
+
+    elif found_contacts:
         if len(found_contacts) == 1:
             print(f"Найден контакт:")
             print(found_contacts[0])
@@ -86,16 +96,7 @@ def delete_data():
             if user_input.isdigit() and 1 <= int(user_input) <= len(found_contacts):
                 selected_contact = found_contacts[int(user_input) - 1]
                 delete_single_contact(selected_contact, lines)
-            elif user_input == 'все':
-                user_confirm = input("Вы уверены, что хотите удалить все контакты? (Д/Н) \n").lower()
-                if user_confirm == 'д':
-                    delete_all_contacts()
-                    print("Все контакты успешно удалены.")
-                    print_data()
-                elif user_confirm == 'н':
-                    print("Удаление отменено.\n")
-                else:
-                    print("Неверный ввод. Действие отменено.\n")
+                print(f"Успешно удален контакт: {selected_contact}")
             elif user_input == 'в':
                 print("Выход из меню.\n")
             else:
@@ -119,18 +120,18 @@ def delete_all_contacts():
         print("Все контакты успешно удалены.\n")
 
 
-# функция для поиска контактов для редактирования
+# функция для поиска контактов для изменения
 def edit_data(found_contacts):
     if len(found_contacts) == 1:
         user_input = input("И - изменить контакт\nУ - удалить контакт\nВ - выход из меню\n").lower()
         if user_input == 'и':
             user_input = '1'
         elif user_input == 'у':
-            delete_single_contact(found_contacts[0])
+            delete_single_contact(found_contacts[0], lines)
             print_data()
             return
     else:
-        user_input = input("\nВыберите номер контакта для изменения\n'В' - выход из меню\n").lower()
+        user_input = input("\nВыберите номер контакта для изменения\nВ - выход из меню\n").lower()
 
     if user_input.isdigit() and 1 <= int(user_input) <= len(found_contacts):
         selected_contact = found_contacts[int(user_input) - 1]
@@ -141,6 +142,7 @@ def edit_data(found_contacts):
         print("Неверный ввод. Действие отменено.\n")
 
 
+# функция для выбора, что сделать с контактом - изменить или удалить
 def edit_or_delete(selected_contact):
     with open('phone.txt', 'r') as file:
         lines = file.readlines()
@@ -159,12 +161,13 @@ def edit_or_delete(selected_contact):
             print("Неверный ввод. Действие отменено.\n")
 
 
+# функция для изменения контакта
 def edit_single_contact(found_contact, lines):
     print(f"Редактирование контакта: {found_contact}\n")
 
     for i, line in enumerate(lines):
         if line.strip() == found_contact:
-            parts = line.strip().split(maxsplit=3)
+            parts = line.strip().split('\t')  # изменено на использование табуляции
             if len(parts) == 4:
                 current_phone, current_last_name, current_first_name, current_middle_name = parts
 
@@ -177,7 +180,7 @@ def edit_single_contact(found_contact, lines):
                 input_middle_name = input(
                     f'Текущее отчество: {current_middle_name}\nВведите новое отчество (оставьте пустым, чтобы оставить прежнее): ') or current_middle_name
 
-                updated_contact = f"{input_phone} {input_last_name} {input_first_name} {input_middle_name}\n"
+                updated_contact = f"{input_phone}\t{input_last_name}\t{input_first_name}\t{input_middle_name}\n"  # изменено на использование табуляции
                 lines[i] = updated_contact
 
                 with open('phone.txt', 'w') as file:
